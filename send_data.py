@@ -4,6 +4,8 @@ import sys
 import os
 sys.path.append("/sw/lib/python2.6/site-packages/")
 import os.path
+import glob
+import shutil
 import json
 
 path = '/home/caroline/Desktop/test/'
@@ -100,9 +102,16 @@ def send_data(config_file):
 	print "command string",AFNI_cmd_string
 	ods.send(AFNI_cmd_string) 
 
+	run = 1
 	while True:
 		print "starting to send new dataset"
 		send_dataset(ods, config)
+
+		#put all files somewhere
+		os.mkdir(path+"run"+str(run))
+		for o in glob.glob(path+"*.imgdat"):
+			shutil.move(o, path+"run"+str(run))
+		run+=1
 	
 
 def send_dataset(ods, config):
@@ -122,14 +131,14 @@ def send_dataset(ods, config):
 	wait_next_dataset = config["TR"]*2
 
 	for f in to_send[1:]:
-		print 'try to send', f
+		#print 'try to send', f
 		start = time.time()
 		while True:
 			if os.path.isfile(f):
 				with open(f) as data:
 					data = data.read()
 					ods.send(data)
-					print 'sent',f
+					#print 'sent',f
 					break
 			else:
 				time.sleep(config["delay"])
