@@ -100,9 +100,30 @@ def send_data(config_file):
 	print "command string",AFNI_cmd_string
 	ods.send(AFNI_cmd_string) 
 
+	while True:
+		print "starting to send new dataset"
+		send_dataset(ods, config)
+	
+
+def send_dataset(ods, config):
 	to_send = files_to_send(config["repetition"], config["num_channels"], config["num_slices"])
-	for f in to_send:
+	#wait for the first file to be ready
+	while True:
+		f = to_send[0]
+		print 'try to send first file', f
+		if os.path.isfile(f):
+			with open(f) as data:
+				data = data.read()
+				ods.send(data)
+				print 'sent',f
+				break
+
+	#try to send remaining files until finish
+	wait_next_dataset = config["TR"]*2
+
+	for f in to_send[1:]:
 		print 'try to send', f
+		start = time.time()
 		while True:
 			if os.path.isfile(f):
 				with open(f) as data:
@@ -112,7 +133,14 @@ def send_data(config_file):
 					break
 			else:
 				time.sleep(config["delay"])
-	ods.close()
+				#if it takes more than 2 TRs to send next file
+				#this dataset finished and we can wait for the next one
+				wait = time.time() - start
+				if wait >= wait_next_dataset:
+					print "finish dataset"
+					return
+					#TODO: tell afni this dataset finished
+	#ods.close()
 
 
 if __name__ == "__main__":
