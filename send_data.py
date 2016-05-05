@@ -7,6 +7,10 @@ import os.path
 import json
 
 path = '/home/caroline/Desktop/test/'
+control_port = 7961
+data_port = 7953
+ip = "127.0.0.1"
+
 
 def files_to_send(repetition, num_channels, num_slices):
 	to_send = []
@@ -33,19 +37,19 @@ def send_data(config_file):
 		sys.exit(1)
 
 	try:
-		ocs.connect((config["ip"], config["control_port"]))
+		ocs.connect((ip, control_port))
 	except Exception, e:
-		print 'Connect %s (%d) failed! %s'%(config["ip"], config["control_port"],e)
+		print 'Connect %s (%d) failed! %s'%(ip, control_port,e)
 		ocs.close()
 		sys.exit(1)
 
-	print 'sending tcp:%s:%d\x00\n'%(config["ip"], config["data_port"])
+	print 'sending tcp:%s:%d\x00\n'%(ip, data_port)
 
 	# send connection string to AFNI
 	try:
-		ocs.send('tcp:%s:%d\x00'%(config["ip"], config["data_port"]))
+		ocs.send('tcp:%s:%d\x00'%(ip, data_port))
 	except Exception, e:
-		print 'send to %s (%d) failed! %s'%(config["ip"], config["data_port"],e)
+		print 'send to %s (%d) failed! %s'%(ip, data_port,e)
 		ocs.close()
 		sys.exit(1)
 	ocs.close()
@@ -66,10 +70,10 @@ def send_data(config_file):
 	ocf_count=0
 	while ocf==False:
 		try:
-			ods.connect((config["ip"], config["data_port"]))
+			ods.connect((ip, data_port))
 			ocf=True
 		except Exception, e:
-			print 'Connect to (%s, %d) failed! %s'%(config["ip"], config["data_port"],e)
+			print 'Connect to (%s, %d) failed! %s'%(ip, data_port,e)
 			ocf=False
 			ocf_count=ocf_count+1
 			if( ocf_count > 20 ):
@@ -77,7 +81,7 @@ def send_data(config_file):
 				ods.close()
 				sys.exit(1)
 
-	print "Connection (",config["ip"],",",config["data_port"],") to AFNI established"
+	print "Connection (",ip,",",data_port,") to AFNI established"
 	# open the input ports to receive data from rtfeedme/scanner
 
 	fov = config["xyfov"]
@@ -91,6 +95,7 @@ def send_data(config_file):
 	AFNI_cmd_string+="DATUM %s\n"%(config["datum"])
 	AFNI_cmd_string+="XYMATRIX %d %d\n"%(xym[0],xym[1])
 	AFNI_cmd_string+="NUM_CHAN %d\n"%(config["num_channels"])
+	AFNI_cmd_string+="ZORDER %s\n"%(config["slice_order"])
 	AFNI_cmd_string+='\0'
 	print "command string",AFNI_cmd_string
 	ods.send(AFNI_cmd_string) 

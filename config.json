@@ -1,15 +1,13 @@
 {
     "aquisition_type": "2D+zt",
-    "TR": 1140,
+    "TR": 1.140,
     "xyfov": [220, 220, 144],
     "num_slices": 48,
-    "xyz_axes": "A-P R-L I-S",
+    "xyz_axes": "R-L A-P I-S",
     "datum": "short",
     "xy_matrix": [64, 64],
     "num_channels": 1,
     "delay": 0.125,
-    "ip": "127.0.0.1",
-    "data_port": 7953,
-    "control_port": 7961,
-    "repetition": 250
+    "repetition": 250,
+    "slice_order": "seq"
 }
