@@ -17,10 +17,10 @@ ip = "127.0.0.1"
 def files_to_send(repetition, num_channels, num_slices):
 	to_send = []
 	for r in range(1, repetition+1):
-		for e in range(1,num_channels+1):
-			for s in range(1,num_slices+1):
-				#'$TYP-R0001-E1-S004.imgdat'
-				f_name = path+'$TYP-R%s-E%s-S%s.imgdat'%(str(r).zfill(4),e,str(s).zfill(3))
+		for s in range(1,num_slices+1):
+			for e in range(1,num_channels+1):
+				#'MB-R0001-E1-S004.imgdat'
+				f_name = path+'MB-R%s-E%s-S%s.imgdat'%(str(r).zfill(4),e,str(s).zfill(3))
 				to_send.append(f_name)
 	return to_send
 
@@ -138,7 +138,7 @@ def send_dataset(ods, config):
 				with open(f) as data:
 					data = data.read()
 					ods.send(data)
-					#print 'sent',f
+					print 'sent',f
 					break
 			else:
 				time.sleep(config["delay"])
